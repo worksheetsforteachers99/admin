@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MyTeachingSheets • Credentials Console</title>
+  <style>
+    :root {
+      --bg: #fbfdff; /* slightly more white */
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e5e7eb;
+      --brand: #0ea5a4;
+      --brand-600: #089a98;
+      --brand-700: #067a77;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --control-h: 40px;
+    }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow-x: hidden; }
+    body {
+      background: linear-gradient(135deg, var(--bg) 0%, #f8fafc 100%); /* bit more white */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    /* Layout */
+    .shell { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+    header {
+      position: sticky; top: 0; z-index: 50;
+  /* header: white background with subtle separation */
+  background: var(--surface); /* white */
+  color: var(--text);
+  backdrop-filter: none;
+  box-shadow: 0 1px 6px rgba(2,6,23,0.06);
+  border-bottom: 1px solid var(--border); /* single thin line */
+    }
+  .nav { max-width: 1180px; margin: 0 auto; padding: 8px 16px; display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); font-size: 18px; }
+  .brand-logo { width: 30px; height: 30px; border-radius: 6px; background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+  .link { font-size: 14px; color: var(--text); text-decoration: none; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: transparent; }
+  .link:hover { color: var(--text); background: #f1f5f9; border-color: var(--border); }
+
+  /* make panels expand to the full viewport width */
+  main { max-width: none; width: 100%; margin: 0; padding: 26px 20px; }
+  .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; max-width: 1180px; margin: 0 auto; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 16px 40px rgba(13,18,25,0.06), 0 6px 14px rgba(13,18,25,0.05); }
+    .card-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .title { margin: 0; font-size: 18px; font-weight: 800; }
+  /* match Send panel title size with other section titles */
+  #sendTitle { font-size: 16px; }
+    .sub { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+
+    .row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
+    .row > div { min-width: 0; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+
+    label { font-weight: 600; color: #334155; font-size: 14px; margin-bottom: 6px; display: block; }
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      height: var(--control-h);
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 15px;
+      line-height: 1;
+      box-sizing: border-box;
+    }
+
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      padding-right: 32px; /* space for chevron */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 15px;
+      line-height: 1.35;
+      min-height: 90px;
+      resize: vertical;
+    }
+    select:focus, input:focus, textarea:focus, button:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(14,165,164,0.12); }
+
+    .btn {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 0 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--control-h);
+      line-height: 1;
+    }
+    .btn:hover { background: #eef2f7; }
+    .btn-primary { border: none; background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%); color: #fff; box-shadow: 0 8px 20px rgba(14,165,164,0.25); }
+    .btn-primary:hover { background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); transform: translateY(-1px); }
+    .btn-danger { background: #fff1f2; border-color: #fecaca; color: #991b1b; }
+    .btn-ghost { background: #fff; }
+    .btn-icon { width: var(--control-h); height: var(--control-h); padding: 0; line-height: 0; }
+
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .search { position: relative; display: inline-flex; align-items: center; flex: 0 0 auto; }
+  .search input { padding-left: 36px; height: var(--control-h); width: 180px; min-width: 120px; max-width: 40vw; }
+  .search .ico { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); font-size: 14px; color: var(--muted); pointer-events: none; line-height: 1; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .muted { color: var(--muted); font-size: 13px; }
+    .status { margin-top: 8px; min-height: 20px; font-size: 13px; color: var(--muted); }
+
+    .list { display: flex; flex-direction: column; gap: 8px; }
+    .row-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: #fff; }
+    .row-main { min-width: 0; }
+    .row-title { font-weight: 700; }
+    .row-sub { font-size: 12px; color: var(--muted); }
+
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 99px; font-size: 12px; background: #f1f5f9; color: #0f172a; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(11,15,20,0.45); align-items: center; justify-content: center; z-index: 60; }
+    .modal.show { display: flex; }
+    .modal-card { width: min(680px, 92vw); }
+
+    /* Toast */
+    .toast { position: fixed; right: 18px; bottom: 18px; padding: 12px 14px; border-radius: 12px; background: #111827; color: #fff; font-size: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); opacity: 0; transform: translateY(8px); transition: all .2s ease; z-index: 70; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    footer {
+      background: var(--surface); /* make footer white */
+      color: var(--text);
+      border-top: 1px solid var(--border); /* single thin line */
+      box-shadow: none;
+    }
+    .foot { max-width: 1180px; margin: 0 auto; padding: 14px 20px; font-size: 14px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .foot .link { font-size: 14px; padding: 6px 10px; color: var(--brand-700); text-decoration: underline; }
+
+    /* Helpers */
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    /* Constrain the main left/right panels to the viewport and allow internal scrolling when content is taller */
+    .grid > .card {
+      max-height: calc(100vh - 160px); /* header + footer + page margins ~160px */
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Keep inner toolbars fixed at top of the panel so content scrolls underneath naturally */
+    .grid > .card .card-h,
+    .grid > .card .toolbar {
+      flex: 0 0 auto;
+      z-index: 2;
+    }
+    .grid > .card .list,
+    .grid > .card > .card + .list,
+    .grid > .card .card > .list {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0; /* important for flex children to allow correct scrolling */
+    }
+
+    /* Prevent wide child controls from forcing horizontal scroll */
+    select, input[type="text"], input[type="email"], input[type="password"], textarea, .toolbar {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 1000px) {
+      /* stacked layout should scroll the page normally */
+      .grid > .card { max-height: none; overflow: visible; display: block; }
+      .grid > .card .list { overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- Top Nav -->
+    <header>
+      <div class="nav">
+        <div class="brand" aria-label="MyTeachingSheets">
+          <div>MyTeachingSheets • Admin</div>
+        </div>
+        <div class="nav-actions">
+          <a class="link" href="#" id="helpLink">Help</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="grid">
+        <!-- LEFT: Lessons (swapped to get more space) -->
+        <section class="card">
+          <div class="card-h"><h3 class="title" style="font-size:16px;">Lessons</h3></div>
+          <!-- description paragraph removed per request -->
+          <div class="toolbar" style="margin:10px 0 12px;">
+            <button id="addLessonBtn" class="btn btn-primary">＋ Add Lesson</button>
+            <button id="reloadLessons" class="btn">↻ Reload</button>
+            <div class="search" style="margin-left:auto;">
+              <span class="ico">🔎</span>
+              <input id="lessonSearch" type="text" placeholder="Search lessons" aria-label="Search lessons" />
+            </div>
+          </div>
+          <div id="lessonsList" class="list" aria-live="polite"></div>
+        </section>
+
+        <!-- RIGHT: Send Employer Credentials & Accounts -->
+        <aside class="card">
+          <div class="card-h">
+            <h2 id="sendTitle" class="title">Send Employer Credentials</h2>
+          </div>
+          <div class="toolbar" style="margin-top:6px;">
+            <!-- employer search removed -->
+          </div>
+
+          <div class="row" style="margin-top:12px; grid-template-columns:1fr auto auto auto;">
+            <div>
+              <select id="emp" aria-label="Employer"></select>
+            </div>
+            <button id="send" class="btn btn-primary">✉️ Send Email</button>
+            <button id="previewBtn" class="btn btn-icon" title="Preview" aria-label="Preview">👁</button>
+            <button id="refresh" class="btn btn-icon" title="Refresh list" aria-label="Refresh list">↻</button>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="toolbar" role="group" aria-label="Employer actions">
+            <button id="editBtn" class="btn">✎ Edit Employer</button>
+            <button id="deleteBtn" class="btn btn-danger">🗑️ Delete</button>
+            <button id="toggleAdd" class="btn btn-ghost" aria-expanded="false">＋ Add Employer</button>
+          </div>
+
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+
+          <!-- Add/Edit Employer -->
+          <div id="addForm" class="card hidden" style="border-style:dashed; margin-top:12px;">
+            <!-- same employer form content -->
+            <div class="toolbar" style="justify-content:space-between;">
+              <div class="title" style="font-size:16px;">Employer Details</div>
+              <div class="muted" id="editingTag"></div>
+            </div>
+            <div class="row" style="grid-template-columns:1fr 1fr;">
+              <div>
+                <label for="a-name">Name</label>
+                <input id="a-name" type="text" placeholder="e.g., John Doe" />
+              </div>
+              <div>
+                <label for="a-pwd">Password</label>
+                <input id="a-pwd" type="text" placeholder="••••••••" />
+              </div>
+              <div>
+                <label for="a-email">Email</label>
+                <input id="a-email" type="email" placeholder="name@example.com" />
+              </div>
+              <div>
+                <label for="a-account">Account (select)</label>
+                <select id="a-account"></select>
+              </div>
+            </div>
+            <div class="toolbar" style="justify-content:flex-end; margin-top:12px;">
+              <button id="addSubmit" class="btn btn-primary">Save</button>
+              <button id="addCancel" class="btn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Preview Panel -->
+          <div id="preview" class="card hidden" style="margin-top:12px;">
+            <div class="title" style="font-size:16px;">Email Preview</div>
+            <div id="previewBody" class="muted" style="margin-top:8px; white-space:pre-wrap;"></div>
+          </div>
+
+          <hr class="divider" />
+          <div class="card-h"><h3 class="title" style="font-size:16px;">Accounts</h3></div>
+          <p class="sub">Create, edit, or remove accounts referenced by employers.</p>
+          <div class="toolbar" style="margin:10px 0 12px;">
+            <button id="addAccountBtn" class="btn btn-primary">＋ Add Account</button>
+            <button id="reloadAccounts" class="btn">↻ Reload</button>
+            <div class="search" style="margin-left:auto;">
+              <span class="ico">🔎</span>
+              <input id="accSearch" type="text" placeholder="Search accounts" aria-label="Search accounts" />
+            </div>
+          </div>
+          <div id="accountsList" class="list" aria-live="polite"></div>
+        </aside>
+      </div>
+    </main>
+
+    <footer>
+      <div class="foot">
+        <div>© <span id="year"></span> MyTeachingSheets</div>
+        <div>Need help? <a class="link" href="#" id="helpLink2">View guide</a></div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Account Form Modal -->
+  <div id="accountForm" class="modal" role="dialog" aria-modal="true" aria-labelledby="accountFormTitle">
+    <div class="card modal-card">
+      <h3 id="accountFormTitle" class="title">Add Account</h3>
+      <div class="row" style="grid-template-columns:1fr 1fr; margin-top:8px;">
+        <div style="grid-column: 1 / -1;">
+          <label>Account Name</label>
+          <input id="d-name" />
+        </div>
+        <div>
+          <label>Account Email</label>
+          <input id="d-email" />
+        </div>
+        <div>
+          <label>Account Pwd</label>
+          <input id="d-pwd" />
+        </div>
+        <div>
+          <label>Creator Email</label>
+          <input id="d-creator-email" />
+        </div>
+        <div>
+          <label>Creator Pwd</label>
+          <input id="d-creator-pwd" />
+        </div>
+        <div>
+          <label>Upload Email</label>
+          <input id="d-upload-email" />
+        </div>
+        <div>
+          <label>Upload Pwd</label>
+          <input id="d-upload-pwd" />
+        </div>
+      </div>
+      <div class="toolbar" style="justify-content:flex-end; margin-top: 12px;">
+        <button id="d-save" class="btn btn-primary">Save</button>
+        <button id="d-cancel" class="btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson Form Modal -->
+  <div id="lessonForm" class="modal" role="dialog" aria-modal="true" aria-labelledby="lessonFormTitle">
+    <div class="card modal-card">
+      <h3 id="lessonFormTitle" class="title">Add Lesson</h3>
+      <div class="row" style="grid-template-columns:1fr 1fr; margin-top:8px;">
+        <div><label>Subject</label><input id="l-subject" /></div>
+        <div><label>Standard</label><input id="l-standard" /></div>
+        <div><label>Grade</label><input id="l-grade" /></div>
+        <div><label>Domain</label><input id="l-domain" /></div>
+        <div><label>Code</label><input id="l-code" /></div>
+        <div style="grid-column:1/-1;"><label>Description</label><textarea id="l-description" style="height:90px;"></textarea></div>
+      </div>
+      <div class="toolbar" style="justify-content:flex-end; margin-top:12px;">
+        <button id="l-save" class="btn btn-primary">Save</button>
+        <button id="l-cancel" class="btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="bridge.js"></script>
+<script>
+    // ------- Utilities -------
+    const $ = (id) => document.getElementById(id);
+    const state = {
+      employers: [],
+      accounts: [],
+      lessons: [],
+      editingEmployerOriginal: null,
+  editingAccountOriginal: null,
+  editingLessonOriginal: null,
+  pendingAccount: null,
+    };
+
+    function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); }
+    function setStatus(text) { $('status').textContent = text || ''; }
+    function openModal(el) { el.classList.add('show'); el.setAttribute('aria-hidden', 'false'); setTimeout(() => { el.querySelector('input,textarea,button')?.focus(); }, 0); }
+    function closeModal(el) { el.classList.remove('show'); el.setAttribute('aria-hidden', 'true'); }
+
+    function toggleAddForm(show) {
+      const f = $('addForm');
+      if (typeof show === 'boolean') f.classList.toggle('hidden', !show); else f.classList.toggle('hidden');
+      $('toggleAdd').setAttribute('aria-expanded', String(!f.classList.contains('hidden')));
+      if (!f.classList.contains('hidden')) fetchAccountsSelect();
+    }
+
+    function filterByQuery(items, q, fields) {
+      if (!q) return items;
+      const s = q.toLowerCase();
+      return items.filter(it => fields.some(f => String(it[f]||'').toLowerCase().includes(s)));
+    }
+
+    // ------- Employers -------
+    function loadEmployers() {
+      setStatus('Loading employers...');
+      google.script.run
+        .withSuccessHandler((names) => {
+          state.employers = (names || []).map(n => ({ name: n }));
+          renderEmployerSelect();
+          setStatus(state.employers.length ? '' : 'No employers found.');
+        })
+        .withFailureHandler((err) => setStatus('Error: ' + err.message))
+        .getEmployerNames();
+    }
+
+    function renderEmployerSelect() {
+      const sel = $('emp');
+      const list = state.employers || [];
+      sel.innerHTML = '<option value="">SELECT</option>' + list.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+    }
+
+    function sendEmail() {
+      const name = $('emp').value;
+      if (!name) { setStatus('Select an employer first.'); toast('Select an employer first'); return; }
+      setStatus('Sending email...');
+      google.script.run
+        .withSuccessHandler((det) => {
+          setStatus(`✅ Email sent to ${det.email || '(no email)'} for "${det.name}".`);
+          toast('Email sent');
+          // fill preview for audit/confirmation
+          $('previewBody').textContent = `Chrome Profile:\n  ACCOUNT: ${det.account || '-'}\n  EMAIL: ${det.creatorEmail || '-'}\n  PASSWORD: ${det.creatorPwd || '-'}\n\nGenerator:\n  USER NAME: ${det.name || '-'}\n  PASSWORD: ${det.pwd || '-'}`;
+          $('preview').classList.remove('hidden');
+        })
+        .withFailureHandler((err) => { setStatus('Error: ' + err.message); toast('Failed to send'); })
+        .sendCredentialsEmail(name);
+    }
+
+    function previewEmail() {
+      const name = $('emp').value; if (!name) { toast('Select an employer first'); return; }
+      setStatus('Preparing preview...');
+      google.script.run
+        .withSuccessHandler((det) => {
+          $('previewBody').textContent = `Chrome Profile:\n  ACCOUNT: ${det.account || '-'}\n  EMAIL: ${det.creatorEmail || '-'}\n  PASSWORD: ${det.creatorPwd || '-'}\n\nGenerator:\n  USER NAME: ${det.name || '-'}\n  PASSWORD: ${det.pwd || '-'}`;
+          $('preview').classList.remove('hidden');
+          setStatus('');
+        })
+        .withFailureHandler((err) => setStatus('Error: ' + err.message))
+        .getEmployerDetailsByName(name);
+    }
+
+    // Add/Edit employer
+    function fetchAccountsSelect() {
+      google.script.run
+        .withSuccessHandler((opts) => {
+          const sel = $('a-account');
+          const current = sel.value || '';
+          sel.innerHTML = '<option value="">(none)</option>';
+          (opts || []).forEach((o) => {
+            const opt = document.createElement('option');
+            opt.value = o.account;
+            opt.textContent = o.assigned ? `${o.account} (assigned)` : o.account;
+            // keep the currently selected or pending account enabled so it doesn't get deselected
+            const keepEnabled = (o.account === current) || (state.pendingAccount && o.account === state.pendingAccount);
+            if (o.assigned && !keepEnabled) opt.disabled = true;
+            sel.appendChild(opt);
+          });
+          // try to restore pendingAccount first, otherwise keep current selection if possible
+          const restore = state.pendingAccount || current;
+          if (restore) {
+            // only set if option exists and is not disabled
+            const optToSelect = Array.from(sel.options).find(op => op.value === restore && !op.disabled);
+            if (optToSelect) sel.value = restore;
+          }
+          state.pendingAccount = null;
+        })
+        .withFailureHandler((err) => console.error(err))
+        .getAccountOptions();
+    }
+
+    function addOrUpdateEmployer() {
+      const payload = { name: $('a-name').value, pwd: $('a-pwd').value, email: $('a-email').value, account: $('a-account').value };
+      const isEdit = !!state.editingEmployerOriginal;
+      setStatus(isEdit ? 'Updating employer...' : 'Adding employer...');
+      const ok = () => { setStatus(isEdit ? '✅ Employer updated.' : '✅ Employer added.'); toast(isEdit ? 'Employer updated' : 'Employer added'); state.editingEmployerOriginal = null; toggleAddForm(false); loadEmployers(); };
+      const err = (e) => setStatus('Error: ' + e.message);
+      if (isEdit) google.script.run.withSuccessHandler(ok).withFailureHandler(err).updateEmployer(state.editingEmployerOriginal, payload);
+      else google.script.run.withSuccessHandler(ok).withFailureHandler(err).addEmployer(payload);
+    }
+
+    function editSelectedEmployer() {
+      const name = $('emp').value; if (!name) { setStatus('Select an employer to edit.'); return; }
+      google.script.run
+        .withSuccessHandler((det) => {
+          $('a-name').value = det.name || '';
+          $('a-pwd').value = det.pwd || '';
+          $('a-email').value = det.email || '';
+          state.editingEmployerOriginal = det.name || null;
+          $('editingTag').textContent = state.editingEmployerOriginal ? `Editing: ${state.editingEmployerOriginal}` : '';
+          // open form and load accounts; preserve desired account so it is restored after async load
+          state.pendingAccount = det.account || '';
+          toggleAddForm(true);
+          fetchAccountsSelect();
+        })
+        .withFailureHandler((err) => setStatus('Error: ' + err.message))
+        .getEmployerDetailsByName(name);
+    }
+
+    function deleteSelectedEmployer() {
+      const name = $('emp').value; if (!name) { setStatus('Select an employer to delete.'); return; }
+      if (!confirm(`Delete employer "${name}"? This cannot be undone.`)) return;
+      setStatus('Deleting...');
+      google.script.run
+        .withSuccessHandler(() => { setStatus('✅ Employer removed.'); toast('Employer removed'); loadEmployers(); })
+        .withFailureHandler((err) => setStatus('Error: ' + err.message))
+        .removeEmployer(name);
+    }
+
+    // ------- Accounts -------
+    function fetchAccountsList() {
+      setStatus('Loading accounts...');
+      google.script.run
+        .withSuccessHandler((list) => { state.accounts = list || []; renderAccounts(); setStatus(''); })
+        .withFailureHandler((err) => setStatus('Error: ' + err.message))
+        .getDataAccounts();
+    }
+
+    function renderAccounts() {
+      const c = $('accountsList'); c.innerHTML = '';
+      const q = $('accSearch').value.trim();
+      const list = filterByQuery(state.accounts, q, ['accountName','accountEmail','creatorEmail']);
+      if (!list.length) { c.textContent = 'No accounts found.'; return; }
+      list.forEach((a) => {
+        const row = document.createElement('div'); row.className = 'row-card';
+        const left = document.createElement('div'); left.className = 'row-main';
+        left.innerHTML = `<div class="row-title">${a.accountName}</div><div class="row-sub">${a.accountEmail || ''}</div>`;
+        const right = document.createElement('div'); right.style.display = 'flex'; right.style.gap = '8px';
+        const edit = document.createElement('button'); edit.className = 'btn'; edit.textContent = 'Edit'; edit.addEventListener('click', () => openAccountForm('edit', a));
+        const del = document.createElement('button'); del.className = 'btn btn-danger'; del.textContent = 'Delete'; del.addEventListener('click', () => removeAccount(a.accountName));
+        right.appendChild(edit); right.appendChild(del);
+        row.appendChild(left); row.appendChild(right); c.appendChild(row);
+      });
+    }
+
+    function openAccountForm(mode, data) {
+      $('accountFormTitle').textContent = mode === 'edit' ? 'Edit Account' : 'Add Account';
+      $('d-name').value = data ? data.accountName : '';
+      $('d-email').value = data ? data.accountEmail : '';
+      $('d-pwd').value = data ? data.accountPwd : '';
+      $('d-creator-email').value = data ? data.creatorEmail : '';
+      $('d-creator-pwd').value = data ? data.creatorPwd : '';
+      $('d-upload-email').value = data ? data.uploadEmail : '';
+      $('d-upload-pwd').value = data ? data.uploadPwd : '';
+      state.editingAccountOriginal = mode === 'edit' ? (data && data.accountName) : null;
+      openModal($('accountForm'));
+    }
+
+    function closeAccountForm() { closeModal($('accountForm')); state.editingAccountOriginal = null; }
+
+    function saveAccount() {
+      const payload = {
+        accountName: $('d-name').value,
+        accountEmail: $('d-email').value,
+        accountPwd: $('d-pwd').value,
+        creatorEmail: $('d-creator-email').value,
+        creatorPwd: $('d-creator-pwd').value,
+        uploadEmail: $('d-upload-email').value,
+        uploadPwd: $('d-upload-pwd').value,
+      };
+      setStatus('Saving account...');
+      const ok = () => { setStatus('✅ Account saved.'); toast('Account saved'); closeAccountForm(); fetchAccountsList(); fetchAccountsSelect(); };
+      const err = (e) => setStatus('Error: ' + e.message);
+      if (state.editingAccountOriginal) google.script.run.withSuccessHandler(ok).withFailureHandler(err).updateDataAccount(state.editingAccountOriginal, payload);
+      else google.script.run.withSuccessHandler(ok).withFailureHandler(err).addDataAccount(payload);
+    }
+
+    function removeAccount(name) {
+      if (!confirm(`Delete account "${name}"?`)) return;
+      setStatus('Deleting account...');
+      google.script.run
+        .withSuccessHandler(() => { setStatus('✅ Account deleted.'); toast('Account deleted'); fetchAccountsList(); })
+        .withFailureHandler((err) => setStatus('Error: ' + err.message))
+        .removeDataAccount(name);
+    }
+
+    // ------- Lessons -------
+    function fetchLessons() {
+      setStatus('Loading lessons...');
+      google.script.run
+        .withSuccessHandler(list => { state.lessons = list || []; renderLessons(); setStatus(''); })
+        .withFailureHandler(err => setStatus('Error: ' + err.message))
+        .getLessons();
+    }
+
+    function renderLessons() {
+      const c = $('lessonsList'); c.innerHTML = '';
+      const q = $('lessonSearch').value.trim();
+      const list = filterByQuery(state.lessons, q, ['code','subject','grade','domain','description']);
+      if (!list.length) { c.textContent = 'No lessons found.'; return; }
+      list.forEach(l => {
+        const row = document.createElement('div'); row.className = 'row-card';
+        const left = document.createElement('div'); left.className = 'row-main';
+        left.innerHTML = `<div class="row-title">${l.code}</div><div class="row-sub">${l.subject} • Grade ${l.grade} • ${l.domain}</div><div class="row-sub" style="margin-top:4px;">${l.description}</div>`;
+        const right = document.createElement('div'); right.style.display = 'flex'; right.style.gap = '8px';
+        const edit = document.createElement('button'); edit.className = 'btn'; edit.textContent = 'Edit'; edit.onclick = () => openLessonForm('edit', l);
+        const del = document.createElement('button'); del.className = 'btn btn-danger'; del.textContent = 'Delete'; del.onclick = () => deleteLesson(l.code);
+        right.appendChild(edit); right.appendChild(del);
+        row.appendChild(left); row.appendChild(right); c.appendChild(row);
+      });
+    }
+
+    function openLessonForm(mode, data) {
+      $('lessonFormTitle').textContent = mode === 'edit' ? 'Edit Lesson' : 'Add Lesson';
+      $('l-subject').value = data ? data.subject : '';
+      $('l-standard').value = data ? data.standard : '';
+      $('l-grade').value = data ? data.grade : '';
+      $('l-domain').value = data ? data.domain : '';
+      $('l-code').value = data ? data.code : '';
+      $('l-description').value = data ? data.description : '';
+      state.editingLessonOriginal = mode === 'edit' ? data.code : null;
+      openModal($('lessonForm'));
+    }
+    function closeLessonForm() { closeModal($('lessonForm')); state.editingLessonOriginal = null; }
+
+    function saveLesson() {
+      const payload = { subject: $('l-subject').value, standard: $('l-standard').value, grade: $('l-grade').value, domain: $('l-domain').value, code: $('l-code').value, description: $('l-description').value };
+      setStatus('Saving lesson...');
+      const ok = () => { setStatus('✅ Lesson saved.'); toast('Lesson saved'); closeLessonForm(); fetchLessons(); };
+      const err = e => setStatus('Error: ' + e.message);
+      if (state.editingLessonOriginal) google.script.run.withSuccessHandler(ok).withFailureHandler(err).updateLesson(state.editingLessonOriginal, payload);
+      else google.script.run.withSuccessHandler(ok).withFailureHandler(err).addLesson(payload);
+    }
+
+    function deleteLesson(code) {
+      if (!confirm(`Delete lesson "${code}"?`)) return;
+      setStatus('Deleting lesson...');
+      google.script.run
+        .withSuccessHandler(() => { setStatus('✅ Lesson deleted.'); toast('Lesson deleted'); fetchLessons(); })
+        .withFailureHandler(err => setStatus('Error: ' + err.message))
+        .removeLesson(code);
+    }
+
+    // ------- Events & Init -------
+    function bindGlobalEvents() {
+      $('year').textContent = new Date().getFullYear();
+      $('helpLink').addEventListener('click', () => alert('Quick help: Select an employer, then click "Send Email". Use Manage to add/edit Accounts.'));
+      $('helpLink2').addEventListener('click', () => alert('Quick help: Select an employer, then click "Send Email". Use Manage to add/edit Accounts.'));
+
+      // main actions
+      $('refresh').addEventListener('click', loadEmployers);
+      $('send').addEventListener('click', sendEmail);
+      $('previewBtn').addEventListener('click', previewEmail);
+
+      $('toggleAdd').addEventListener('click', () => toggleAddForm());
+      $('addCancel').addEventListener('click', () => { state.editingEmployerOriginal = null; toggleAddForm(false); });
+      $('addSubmit').addEventListener('click', addOrUpdateEmployer);
+
+      $('editBtn').addEventListener('click', editSelectedEmployer);
+      $('deleteBtn').addEventListener('click', deleteSelectedEmployer);
+
+      $('addAccountBtn').addEventListener('click', () => openAccountForm('add'));
+      $('d-cancel').addEventListener('click', closeAccountForm);
+      $('d-save').addEventListener('click', saveAccount);
+
+      $('addLessonBtn').addEventListener('click', () => openLessonForm('add'));
+      $('l-cancel').addEventListener('click', closeLessonForm);
+      $('l-save').addEventListener('click', saveLesson);
+
+  // search inputs
+  $('accSearch').addEventListener('input', renderAccounts);
+  $('lessonSearch').addEventListener('input', renderLessons);
+
+      // modal close on ESC / backdrop click
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeAccountForm(); closeLessonForm(); } });
+      document.addEventListener('click', (e) => {
+        if (e.target === $('accountForm')) closeAccountForm();
+        if (e.target === $('lessonForm')) closeLessonForm();
+      });
+    }
+
+    function init() {
+      bindGlobalEvents();
+      loadEmployers();
+      fetchAccountsList();
+      fetchLessons();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
