@@ -1,21 +1,31 @@
-// === bridge.js (Front-end adapter for Vercel) ===
-// Emulates google.script.run chaining API using fetch() to your GAS Web App.
-// Usage: keep your existing code that calls google.script.run... and just include this file.
+
+// === bridge.strict.js ===
+// Same as bridge.js, but refuses to run if GAS_URL is missing or placeholder.
 
 (function(){
   if (typeof window === 'undefined') return;
 
-  // Configure via global vars or Vercel env-injected <script> before this file:
-  // window.GAS_URL = 'https://script.google.com/macros/s/XXXXX/exec'
-  // window.API_KEY = 'your-secret';
   const GAS_URL =
     (typeof window.NEXT_PUBLIC_GAS_URL !== 'undefined' && window.NEXT_PUBLIC_GAS_URL) ||
-    (typeof window.GAS_URL !== 'undefined' && window.GAS_URL) ||
-    'https://SCRIPT_ID_HERE/exec'; // TODO: replace or set via env
+    (typeof window.GAS_URL !== 'undefined' && window.GAS_URL) || '';
 
   const API_KEY =
     (typeof window.NEXT_PUBLIC_API_KEY !== 'undefined' && window.NEXT_PUBLIC_API_KEY) ||
     (typeof window.API_KEY !== 'undefined' && window.API_KEY) || '';
+
+  if (!GAS_URL || GAS_URL.includes('SCRIPT_ID_HERE')) {
+    const msg = 'GAS_URL is not set. Add in index.html before bridge.strict.js: window.GAS_URL = "https://script.google.com/macros/s/AKfycb.../exec"';
+    console.error(msg);
+    // show user-friendly message on page
+    try {
+      var warn = document.createElement('div');
+      warn.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;background:#111;color:#fff;padding:10px 12px;border-radius:10px;z-index:9999;font:14px/1.3 system-ui;";
+      warn.textContent = msg;
+      document.body.appendChild(warn);
+      setTimeout(()=>warn.remove(), 6000);
+    } catch(_) {}
+    return;
+  }
 
   function call(action, params) {
     return fetch(GAS_URL, {
@@ -28,7 +38,6 @@
     });
   }
 
-  // Parameter mappers for two-arg methods
   const twoArgParamMap = {
     updateEmployer: (a, b) => ({ originalName: a, payload: b }),
     updateDataAccount: (a, b) => ({ originalName: a, payload: b }),
@@ -46,7 +55,6 @@
     addLesson: (payload) => payload,
   };
 
-  // Chainable wrapper to mimic withSuccessHandler/withFailureHandler
   function Runner() {
     this._onSuccess = function(){};
     this._onFailure = function(){};
@@ -54,24 +62,17 @@
   Runner.prototype.withSuccessHandler = function(fn){ this._onSuccess = fn || function(){}; return this; };
   Runner.prototype.withFailureHandler = function(fn){ this._onFailure = fn || function(){}; return this; };
 
-  const runnerProto = Runner.prototype;
-
-  // Proxy to capture arbitrary method names like getEmployerNames(), addEmployer(payload), etc.
   const handler = {
     get(target, prop) {
       if (prop in target) return target[prop];
-      // Return a function that triggers the REST call when invoked
       return function(...args){
         try {
           let params = {};
           if (args.length === 0) {
-            // no params
           } else if (args.length === 1) {
-            if (oneArgParamMap[prop]) params = oneArgParamMap[prop](args[0]);
-            else params = args[0];
+            params = (oneArgParamMap[prop] ? oneArgParamMap[prop](args[0]) : args[0]);
           } else if (args.length >= 2) {
-            if (twoArgParamMap[prop]) params = twoArgParamMap[prop](args[0], args[1]);
-            else params = { a0: args[0], a1: args[1] };
+            params = (twoArgParamMap[prop] ? twoArgParamMap[prop](args[0], args[1]) : { a0: args[0], a1: args[1] });
           }
           return call(prop, params).then(this._onSuccess).catch(this._onFailure);
         } catch (err) {
@@ -81,15 +82,10 @@
     }
   };
 
-  const runProxy = new Proxy(runnerProto, { get: (t,p)=>runnerProto[p] });
   function makeRunner(){ return new Proxy(new Runner(), handler); }
 
   window.google = window.google || {};
   window.google.script = window.google.script || {};
-  Object.defineProperty(window.google.script, 'run', {
-    get: () => makeRunner()
-  });
-
-  // Optional: expose call() for direct usage in new code
+  Object.defineProperty(window.google.script, 'run', { get: () => makeRunner() });
   window.__gas_call__ = call;
 })();
